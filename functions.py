@@ -2,6 +2,7 @@ from urllib.request import urlopen, urlretrieve
 from bs4 import BeautifulSoup
 from re import findall
 from progress.bar import IncrementalBar
+from tqdm import tqdm
 
 def my_rating(snils, links):
     ratings = []
@@ -37,7 +38,7 @@ def my_real_opponents(link, my_snils, links, max_for_bar):
     F = True
     count1 = 0  # number of priorities "1"
     opponents = 0
-    bar = IncrementalBar('Opponents', max=max_for_bar)
+    bar = IncrementalBar(max=max_for_bar)
     for child in soup.table.tbody.recursiveChildGenerator():
         if F:
             if child.name == "tr":
@@ -80,7 +81,7 @@ def educational_program(link):
 
 def download_links(links):
     ans = []
-    for link in links:
+    for link in tqdm(links):
         resp = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + link)
         html = resp.read().decode('utf8')
         ans.append(html)
