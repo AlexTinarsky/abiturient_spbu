@@ -1,12 +1,12 @@
 from urllib.request import urlopen, urlretrieve
 from bs4 import BeautifulSoup
 from re import findall
+from progress.bar import IncrementalBar
 
 def my_rating(snils, links):
     ratings = []
     for link in links:
-        resp = urlopen("file:///D:/Python/abiturient_spbu/" + link)
-        html = resp.read().decode('utf8')  # считываем содержимое
+        html = link
         soup = BeautifulSoup(html, 'html.parser')
         if len(findall(f"<td>(\d*)</td>\r\n\s\s<td>{snils}</td>", html)) == 1:
             rating = int(findall(f"<td>(\d*)</td>\r\n\s\s<td>{snils}</td>", html)[0])
@@ -16,7 +16,7 @@ def my_rating(snils, links):
             budget_places = int(findall(r"КЦП по конкурсу: (.*) ", soup.body.p.text)[0])
             number_of_applications = int(findall(r"Количество поданных заявлений: (.*) ", soup.body.p.text)[0])
             ratings.append({"rating": rating, "priority": priority, "educational_program": educational_program,
-                            "budget_places": budget_places, "number_of_applications": number_of_applications})
+                            "budget_places": budget_places, "number_of_applications": number_of_applications, "link": html})
     return ratings
 
 
@@ -30,14 +30,14 @@ def all_links():
     return links
 
 
-def my_real_opponents(link, my_snils, links):
+def my_real_opponents(link, my_snils, links, max_for_bar):
     IT_links2 = links
-    resp = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + link)  # скачиваем файл
-    html = resp.read().decode('utf8')  # считываем содержимое
-    soup = BeautifulSoup(html, 'html.parser')  # делаем суп
+    html = link
+    soup = BeautifulSoup(html, 'html.parser')
     F = True
     count1 = 0  # number of priorities "1"
     opponents = 0
+    bar = IncrementalBar('Opponents', max=max_for_bar)
     for child in soup.table.tbody.recursiveChildGenerator():
         if F:
             if child.name == "tr":
@@ -64,9 +64,10 @@ def my_real_opponents(link, my_snils, links):
                                             break
                                     if opponent:
                                         opponents += 1
-                                print(a[0])
+                                bar.next()
                             break
         else:
+            bar.finish()
             break
     if not F:
         return (count1, opponents)
@@ -79,7 +80,8 @@ def educational_program(link):
 
 def download_links(links):
     ans = []
-    for i in range(len(links)):
-        urlretrieve('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + links[i], f"{i+1}.html")
-        ans.append(f"{i+1}.html")
+    for link in links:
+        resp = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + link)
+        html = resp.read().decode('utf8')
+        ans.append(html)
     return ans
