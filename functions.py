@@ -16,8 +16,9 @@ def my_rating(snils, links):
                 (findall(r"Образовательная программа: (.*)", soup.body.p.text)[0]).split()[1:])
             budget_places = int(findall(r"КЦП по конкурсу: (.*) ", soup.body.p.text)[0])
             number_of_applications = int(findall(r"Количество поданных заявлений: (.*) ", soup.body.p.text)[0])
+            datetime = findall(r"Время последнего обновления: (.*)", soup.body.text)[0]
             ratings.append({"rating": rating, "priority": priority, "educational_program": educational_program,
-                            "budget_places": budget_places, "number_of_applications": number_of_applications, "link": html})
+                            "budget_places": budget_places, "number_of_applications": number_of_applications, "link": html, "datetime": datetime})
     return ratings
 
 
