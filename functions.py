@@ -1,10 +1,12 @@
+from typing import Union
 from urllib.request import urlopen, urlretrieve
 from bs4 import BeautifulSoup
 from re import findall
 from progress.bar import IncrementalBar
 from tqdm import tqdm
 
-def my_rating(snils, links):
+
+def my_rating(snils: str, links: list[str]) -> list[{str: Union[int, str]}]:
     ratings = []
     for link in links:
         html = link
@@ -18,11 +20,12 @@ def my_rating(snils, links):
             number_of_applications = int(findall(r"Количество поданных заявлений: (.*) ", soup.body.p.text)[0])
             datetime = findall(r"Время последнего обновления: (.*)", soup.body.text)[0]
             ratings.append({"rating": rating, "priority": priority, "educational_program": educational_program,
-                            "budget_places": budget_places, "number_of_applications": number_of_applications, "link": html, "datetime": datetime})
+                            "budget_places": budget_places, "number_of_applications": number_of_applications,
+                            "link": html, "datetime": datetime})
     return ratings
 
 
-def all_links():
+def all_links() -> list[str]:
     resp1 = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/index_comp_groups.html').read().decode("utf8")
     soup1 = BeautifulSoup(resp1, 'html.parser')
     links = []
@@ -32,7 +35,7 @@ def all_links():
     return links
 
 
-def my_real_opponents(link, my_snils, links, max_for_bar):
+def my_real_opponents(link: str, my_snils: str, links: list[str], max_for_bar: int) -> tuple[int, int]:
     IT_links2 = links
     html = link
     soup = BeautifulSoup(html, 'html.parser')
@@ -74,13 +77,15 @@ def my_real_opponents(link, my_snils, links, max_for_bar):
     if not F:
         return (count1, opponents)
 
-def educational_program(link):
+
+def educational_program(link: str) -> str:
     resp = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + link)
     html = resp.read().decode('utf8')
     soup = BeautifulSoup(html, 'html.parser')
     return " ".join((findall(r"Образовательная программа: (.*)", soup.body.p.text)[0]).split()[1:])
 
-def download_links(links):
+
+def download_links(links: list[str]) -> list[str]:
     ans = []
     for link in tqdm(links):
         resp = urlopen('https://cabinet.spbu.ru/Lists/1k_EntryLists/' + link)
