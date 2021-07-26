@@ -13,7 +13,10 @@ def my_rating(snils: str, links: list[str]) -> list[{str: Union[int, str]}]:
         soup = BeautifulSoup(html, 'html.parser')
         if len(findall(f"<td>(\d*)</td>\r\n\s\s<td>{snils}</td>", html)) == 1:
             rating = int(findall(f"<td>(\d*)</td>\r\n\s\s<td>{snils}</td>", html)[0])
-            priority = int(findall(f"<td>{snils}</td>\r\n\s\s<td>.*?</td>\r\n\s\s<td>(\d*)</td>", html)[0])
+            try:
+                priority = int(findall(f"<td>{snils}</td>\r\n\s\s<td>.*?</td>\r\n\s\s<td>(\d*)</td>", html)[0])
+            except ValueError:
+                priority = 0
             educational_program = " ".join(
                 (findall(r"Образовательная программа: (.*)", soup.body.p.text)[0]).split()[1:])
             budget_places = int(findall(r"КЦП по конкурсу: (.*) ", soup.body.p.text)[0])

@@ -24,7 +24,7 @@ while True:
             print(f"Количество абитуриентов, которые выше вас по рейтингу и не проходят ни на одно более важное для себя направление - {mro[1]}")
             lt2 = time()
             print(f"Analysis time: {round((lt2 - lt1) // 60)} min, {round((lt2 - lt1) % 60, 1)} sec...")
-    except:
+    except ValueError:
         print("Некорректный ввод!")
 t2 = time()
 print(f"Run time: {round((t2 - t1) // 60)} min, {round((t2 - t1) % 60, 1)} sec...")
